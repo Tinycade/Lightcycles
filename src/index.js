@@ -10,6 +10,8 @@ var cellLife = 60000;
 const Beholder = window['beholder-detection'];
 
 var players = [];
+let gameState = 0;
+let gameUpdates = [startUpdate, mainUpdate, endUpdate];
 
 // Defines Player 1
 const player1 = new Cycle(0, 1, "right", 1);
@@ -47,6 +49,12 @@ function init() {
         }
     }
 
+    // Listens for player updates
+    document.addEventListener("keydown", (e) => { changeDirection(e, player1) });
+    document.addEventListener("keydown", (e) => { changeDirection(e, player2) });
+    document.addEventListener("keydown", (e) => { changeDirection(e, player3) });
+    document.addEventListener("keydown", (e) => { changeDirection(e, player4) });
+
     requestAnimationFrame(update);
 }
 
@@ -62,6 +70,10 @@ function update() {
 
     // Beholder detection
     Beholder.update();
+
+    // Checks the state of the game
+    gameUpdates[gameState](dt);
+    
     var demoMarker = Beholder.getMarker(0);
 
     if (demoMarker.present) {
@@ -71,20 +83,10 @@ function update() {
         console.log(demoCenter.x, demoCenter.y, demoRotation);
     }
 
-    // Updates Player 1
-    document.addEventListener("keydown", (e) => { changeDirection(e, player1) });
+    // Updates players
     if (!player1.gameOver) player1.update(dt);
-
-    // Updates Player 2
-    document.addEventListener("keydown", (e) => { changeDirection(e, player2) });
     if (!player2.gameOver) player2.update(dt);
-
-    // Updates Player 3
-    document.addEventListener("keydown", (e) => { changeDirection(e, player3) });
     if (!player3.gameOver) player3.update(dt);
-
-    // Updates Player 4
-    document.addEventListener("keydown", (e) => { changeDirection(e, player4) });
     if (!player4.gameOver) player4.update(dt);
 
     draw();
@@ -246,6 +248,20 @@ function gameData() {
         players[i].drawX;
         players[i].drawY;
     }
+}
+
+
+// Controls the state of the game
+function startUpdate() {
+
+}
+
+function mainUpdate() {
+
+}
+
+function endUpdate() {
+
 }
 
 window.onload = init;
