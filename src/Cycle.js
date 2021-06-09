@@ -1,5 +1,5 @@
 class Cycle {
-    constructor(startX, startY, direction, playerNumber) {
+    constructor(startX, startY, direction, playerNumber, fill, stroke) {
         // Defines player location
         this.x = startX; 
         this.y = startY;
@@ -12,6 +12,10 @@ class Cycle {
         this.lerpTimer = 0;
         this.speed = 90;
         this.direction = direction;
+
+        // Defines player visuals
+        this.innerColor = fill;
+        this.outerColor = stroke;
 
         // Defines player conditions
         this.maxWallCount = 150;
@@ -26,24 +30,16 @@ class Cycle {
         this.player = playerNumber;
     }
 
-    changeCell() {
-        switch (this.direction) {
-            case "left":
-                this.targetX = this.x - 1;
-                break;
-    
-            case "right":
-                this.targetX = this.x + 1;
-                break;
-    
-            case "up":
-                this.targetY = this.y - 1;
-                break;
-    
-            case "down":
-                this.targetY = this.y + 1;
-                break;
-        }
+    // Draws the player
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.rect(this.drawX, this.drawY, cellSize, cellSize);
+        ctx.fillStyle = this.innerColor;
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.outerColor;
+        ctx.stroke();
+        ctx.closePath();
     }
 
     update(dt) {
@@ -87,15 +83,54 @@ class Cycle {
         }
     }
 
-    // Draws the player
-    draw(ctx, innerColor, outerColor) {
-        ctx.beginPath();
-        ctx.rect(this.drawX, this.drawY, cellSize, cellSize);
-        ctx.fillStyle = innerColor;
-        ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = outerColor;
-        ctx.stroke();
-        ctx.closePath();
+    // Determines which direction the player is moving in
+    changeDirection(e) {
+        // Movement
+        if ( e.key == "d" || e.key == "ArrowRight" ) {
+            if (this.direction != "left") this.direction = "right";
+        }
+        else if ( e.key == "a" || e.key == "ArrowLeft" ) {
+            if (this.direction != "right") this.direction = "left";
+        }
+        else if ( e.key == "w" || e.key == "ArrowUp" ) {
+            if (this.direction != "down") this.direction = "up";
+        }
+        else if ( e.key == "s" || e.key == "ArrowDown" ) {
+            if (this.direction != "up") this.direction = "down";
+        }
+
+        // Toggle wall
+        if ( e.key == "q" ) this.wall = true;
+        else if ( e.key == "e" ) this.wall = false;
+    }
+
+    // Determines the next cell the player will travel to
+    changeCell() {
+        switch (this.direction) {
+            case "left":
+                this.targetX = this.x - 1;
+                break;
+    
+            case "right":
+                this.targetX = this.x + 1;
+                break;
+    
+            case "up":
+                this.targetY = this.y - 1;
+                break;
+    
+            case "down":
+                this.targetY = this.y + 1;
+                break;
+        }
+    }
+
+    // Lose conditions: Player crashes into wall or another player
+    crash() {
+        if (!this.gameOver) {
+            if (this.targetX <= 0 || this.targetX > cellCount) this.gameOver = true;
+            if (this.targetY <= 0 || this.targetY > cellCount) this.gameOver = true;
+            if (cells[this.targetX][this.targetY].status != 0) this.gameOver = true;
+        }
     }
 }
