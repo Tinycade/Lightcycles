@@ -1,5 +1,5 @@
-class Cycle {
-    constructor(startX, startY, direction, playerNumber, fill, stroke) {
+class Lightcycle {
+    constructor(startX, startY, direction, playerNumber, grid) {
         // Defines player location
         this.x = startX; 
         this.y = startY;
@@ -14,8 +14,8 @@ class Cycle {
         this.direction = direction;
 
         // Defines player visuals
-        this.innerColor = fill;
-        this.outerColor = stroke;
+        this.innerColor = PLAYER_COLORS.INNER[playerNumber - 1];
+        this.outerColor = PLAYER_COLORS.OUTER[playerNumber - 1];
 
         // Defines player conditions
         this.maxWallCount = 150;
@@ -27,13 +27,18 @@ class Cycle {
         this.recharged = this.maxWallCount / 2;
 
         this.gameOver = false;
-        this.player = playerNumber;
+        this.playerNumber = playerNumber;
+
+        this.grid = grid;
     }
 
     // Draws the player
     draw(ctx) {
+        // silly bail on game over
+        if (this.gameOver) return;
+
         ctx.beginPath();
-        ctx.rect(this.drawX, this.drawY, cellSize, cellSize);
+        ctx.rect(this.drawX, this.drawY, this.grid.cellSize, this.grid.cellSize);
         ctx.fillStyle = this.innerColor;
         ctx.fill();
         ctx.lineWidth = 3;
@@ -43,13 +48,15 @@ class Cycle {
     }
 
     update(dt) {
-        players[this.player - 1] = this;
+        // silly bail on game over
+        if (this.gameOver) return;
+
         this.lerpTimer -= dt;
 
-        var startX = cellPadding + this.x * cellSize;
-        var startY = cellPadding + this.y * cellSize;
-        var endX = cellPadding + this.targetX * cellSize;
-        var endY = cellPadding + this.targetY * cellSize;
+        var startX = cellPadding + this.x * this.grid.cellSize;
+        var startY = cellPadding + this.y * this.grid.cellSize;
+        var endX = cellPadding + this.targetX * this.grid.cellSize;
+        var endY = cellPadding + this.targetY * this.grid.cellSize;
 
         if (this.lerpTimer < 0) {
             // New target
@@ -59,8 +66,7 @@ class Cycle {
             // Creates new walls if possible
             if (this.wallCount > 0 && !this.recharging && this.wall) {
                 // Current cell is now a wall
-                cells[this.x][this.y].status = this.player;
-                cells[this.x][this.y].life = cellLife;
+                this.grid.setCell(this.playerNumber, this.x, this.y);
                 this.wallCount--;
             } else {
                 this.recharging = true;
@@ -81,6 +87,8 @@ class Cycle {
             this.drawX = startX + (startX - endX) * this.lerpTimer / this.speed;
             this.drawY = startY + (startY - endY) * this.lerpTimer / this.speed;
         }
+
+        this.crash();
     }
 
     // Determines which direction the player is moving in
@@ -127,10 +135,8 @@ class Cycle {
 
     // Lose conditions: Player crashes into wall or another player
     crash() {
-        if (!this.gameOver) {
-            if (this.targetX <= 0 || this.targetX > cellCount) this.gameOver = true;
-            if (this.targetY <= 0 || this.targetY > cellCount) this.gameOver = true;
-            if (cells[this.targetX][this.targetY].status != 0) this.gameOver = true;
-        }
+        if (this.targetX <= 0 || this.targetX > cellCount) this.gameOver = true;
+        if (this.targetY <= 0 || this.targetY > cellCount) this.gameOver = true;
+        if (this.grid.getCell(this.targetX, this.targetY).status != 0) this.gameOver = true;
     }
 }

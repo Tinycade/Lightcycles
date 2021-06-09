@@ -5,17 +5,25 @@ let canvas, ctx;
 const Beholder = window['beholder-detection'];
 
 // Defines the game state
-let gameState = 0;
+let gameState = 1;
+const players = [];
+let grid;
+
+function startUpdate() {
+
+}
+
+function mainUpdate() {
+    // update players
+    players.forEach((p) => p.update(dt));
+    grid.update(dt);
+}
+
+function endUpdate() {
+
+}
+
 let gameUpdates = [startUpdate, mainUpdate, endUpdate];
-
-// Defines players
-const player1 = new Cycle(0, 1, "right", 1, "#FFA219", "#FFD199");
-const player2 = new Cycle(cellCount - 1, 1, "left", 2, "#A0B4F0", "#D9E1F9");
-const player3 = new Cycle(0, cellCount/2, "right", 3, "#F96995", "#FDB4CA");
-const player4 = new Cycle(cellCount - 1, cellCount/2, "left", 4, "#E0DA2F", "#F8F7D1");
-
-let players = [player1, player2, player3, player4];
-
 
 function init() {
     canvas = document.getElementById("myCanvas");
@@ -23,9 +31,16 @@ function init() {
 
     Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
 
-    createGrid();
+    grid = new Grid();
+
+    // init players
+    players.push(new Lightcycle(1, 1, "right", 1, grid));
+    players.push(new Lightcycle(cellCount - 2, 1, "left", 2, grid));
+    players.push(new Lightcycle(1, cellCount/2, "right", 3, grid));
+    players.push(new Lightcycle(cellCount - 2, cellCount/2, "left", 4, grid));
 
     // Listens for player updates
+    // REMOVE LATER
     for (let i = 0; i < players.length; i++) document.addEventListener("keydown", (e) => { players[i].changeDirection(e) });
 
     requestAnimationFrame(update);
@@ -55,13 +70,6 @@ function update() {
 
     // Checks the state of the game
     gameUpdates[gameState](dt);
-    cellLifeTime(dt);
-
-    // Updates players
-    for (let i = 0; i < players.length; i++) {
-        if (!players[i].gameOver) players[i].update(dt);
-        players[i].crash();
-    }
 
     draw();
     requestAnimationFrame(update);
@@ -72,23 +80,10 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineWidth = 1;
 
-    drawCells();
+    grid.draw(ctx);
 
     // Draws players
-    for (let i = 0; i < players.length; i++) if (!players[i].gameOver) players[i].draw(ctx);
-}
-
-
-function startUpdate() {
-
-}
-
-function mainUpdate() {
-
-}
-
-function endUpdate() {
-
+    players.forEach((p) => p.draw(ctx));
 }
 
 window.onload = init;
