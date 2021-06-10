@@ -2,6 +2,10 @@ const cellCount = 50;
 const cellPadding = 0;
 const cellLife = 45000;
 
+const maxWallCount = 150;
+const minRecharge = maxWallCount / 2;
+const rechargeRate = 1.5;
+
 const PLAYER_COLORS = {
   INNER: [
     '#FFA219',

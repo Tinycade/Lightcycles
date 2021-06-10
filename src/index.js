@@ -1,20 +1,20 @@
-// Defines canvas
+// Defines grid and canvas
 let canvas, ctx;
+let grid;
 
 // Defines Beholder detection
 const Beholder = window['beholder-detection'];
 
-// Defines the game state
+// Defines the game state and players
 let gameState = 1;
 const players = [];
-let grid;
 
 function startUpdate() {
 
 }
 
 function mainUpdate() {
-    // update players
+    // Update players and grid
     players.forEach((p) => p.update(dt));
     grid.update(dt);
 }
@@ -31,9 +31,10 @@ function init() {
 
     Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
 
+    // Initializes the grid
     grid = new Grid();
 
-    // init players
+    // Initializes players
     players.push(new Lightcycle(1, 1, "right", 1, grid));
     players.push(new Lightcycle(cellCount - 2, 1, "left", 2, grid));
     players.push(new Lightcycle(1, cellCount/2, "right", 3, grid));

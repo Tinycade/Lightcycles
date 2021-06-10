@@ -1,5 +1,9 @@
 class Lightcycle {
     constructor(startX, startY, direction, playerNumber, grid) {
+        // Defines player and grid
+        this.playerNumber = playerNumber;
+        this.grid = grid;
+
         // Defines player location
         this.x = startX; 
         this.y = startY;
@@ -18,23 +22,15 @@ class Lightcycle {
         this.outerColor = PLAYER_COLORS.OUTER[playerNumber - 1];
 
         // Defines player conditions
-        this.maxWallCount = 150;
-        this.wallCount = this.maxWallCount;
+        this.wallCount = maxWallCount;
         this.wall = true;
-
         this.recharging = false;
-        this.rechargeRate = 1.5;
-        this.recharged = this.maxWallCount / 2;
-
         this.gameOver = false;
-        this.playerNumber = playerNumber;
-
-        this.grid = grid;
     }
 
     // Draws the player
     draw(ctx) {
-        // silly bail on game over
+        // Exit condition
         if (this.gameOver) return;
 
         ctx.beginPath();
@@ -48,7 +44,7 @@ class Lightcycle {
     }
 
     update(dt) {
-        // silly bail on game over
+        // Exit condition
         if (this.gameOver) return;
 
         this.lerpTimer -= dt;
@@ -70,11 +66,11 @@ class Lightcycle {
                 this.wallCount--;
             } else {
                 this.recharging = true;
-                if (this.wallCount < this.maxWallCount) this.wallCount += this.rechargeRate;
-                if (this.wallCount > this.maxWallCount) this.wallCount = this.maxWallCount;
+                if (this.wallCount < maxWallCount) this.wallCount += rechargeRate;
+                if (this.wallCount > maxWallCount) this.wallCount = maxWallCount;
 
                 // The player can generate walls again
-                if (this.wallCount > this.recharged) this.recharging = false;
+                if (this.wallCount > minRecharge) this.recharging = false;
             }
 
             // Changes player location to target location
@@ -88,6 +84,7 @@ class Lightcycle {
             this.drawY = startY + (startY - endY) * this.lerpTimer / this.speed;
         }
 
+        // Checks to see if the player has crashed
         this.crash();
     }
 
