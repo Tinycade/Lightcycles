@@ -30,15 +30,19 @@ class Lightcycle {
 
     // Draws the player
     draw(ctx) {
-        // Exit condition
-        if (this.gameOver) return;
-
         ctx.beginPath();
         ctx.rect(this.drawX, this.drawY, this.grid.cellSize, this.grid.cellSize);
-        ctx.fillStyle = this.innerColor;
+        if (!this.gameOver) {
+            ctx.fillStyle = this.innerColor;
+            ctx.strokeStyle = this.outerColor;
+        }
+        else {
+            // Player has crashed
+            ctx.fillStyle = "#EA4C46";
+            ctx.strokeStyle = "#DC1C13";
+        }
         ctx.fill();
         ctx.lineWidth = 3;
-        ctx.strokeStyle = this.outerColor;
         ctx.stroke();
         ctx.closePath();
     }
