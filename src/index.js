@@ -6,11 +6,67 @@ let grid;
 const Beholder = window['beholder-detection'];
 
 // Defines the game state and players
-let gameState = 1;
+let gameState = 0;
 const players = [];
+let winner;
+
+let buttons = [];
+let elem = document.getElementById("myCanvas");
+canvasLeft = elem.offsetLeft + elem.clientLeft;
+canvasTop = elem.offsetTop + elem.clientTop;
 
 function startUpdate() {
+    // Creates buttons as Path2D objects
+    const host = new Path2D();
+    const join = new Path2D();
 
+    drawButton("Host Game", host, "orange", canvas, ctx, canvas.width/6, canvas.height/2, canvas.width*2/3, canvas.height/7);
+    drawButton("Join Game", join, "blue", canvas, ctx, canvas.width/6, canvas.height*7/10, canvas.width*2/3, canvas.height/7);
+
+    // Creates the title for the game
+    ctx.beginPath();
+    ctx.font = "60pt Calibri";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "white";
+    ctx.fillText("Lightcycles", canvas.width/2, canvas.height/3);
+    ctx.closePath();
+}
+
+function drawButton(name, path, textColor, canvas, ctx, x1, y1, x2, y2) {
+    
+    path.rect(x1, y1, x2, y2);
+    path.closePath();
+
+    // Draws the button
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "rgba(225,225,225,0.5)";
+    ctx.fill(path);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#000000";
+    ctx.stroke(path);
+
+    ctx.font = "30pt Calibri";
+    ctx.textAlign = "center";
+    ctx.fillStyle = textColor;
+    ctx.fillText(name, x1+x2/2, y1+y2/2 + 10);
+
+    // Adjusts mouse click to canvas coordinates
+    function getXY(canvas, event){ 
+        const rect = canvas.getBoundingClientRect();
+        const y = event.clientY - rect.top;
+        const x = event.clientX - rect.left;
+        return {x:x, y:y};
+    }
+
+    // Determines if a button was clicked
+    document.addEventListener("click",  function (e) {
+        const XY = getXY(canvas, e);
+        // Determines if a button was clicked
+        if(ctx.isPointInPath(path, XY.x, XY.y)) {
+            // Change game states
+            gameState = 1;
+        }
+    }, false);
 }
 
 function mainUpdate() {
@@ -20,13 +76,19 @@ function mainUpdate() {
 }
 
 function endUpdate() {
-
+    if (winner != 0) {
+        alert("Player " + winner.playerNumber + " wins!");
+        winner = 0;
+    }
+    location.reload();
 }
 
 let gameUpdates = [startUpdate, mainUpdate, endUpdate];
 
 function init() {
     canvas = document.getElementById("myCanvas");
+    canvas.width = 480;
+    canvas.height = 480;
     ctx = canvas.getContext("2d");
 
     Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
@@ -69,8 +131,15 @@ function update() {
         console.log(demoCenter.x, demoCenter.y, demoRotation);
     }
 
-    // Checks the state of the game
-    gameUpdates[gameState](dt);
+    // Checks to see if all players except for one have crashed
+    let playersAlive = 0;
+    players.forEach((p) => {
+        if (!p.gameOver) {
+            playersAlive++;
+            winner = p;
+        }
+    });
+    if (playersAlive == 1) gameState = 2;
 
     draw();
     requestAnimationFrame(update);
@@ -81,10 +150,14 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineWidth = 1;
 
-    grid.draw(ctx);
+    // Checks the state of the game
+    gameUpdates[gameState](dt);
 
-    // Draws players
-    players.forEach((p) => p.draw(ctx));
+    if (gameState > 0) {
+        grid.draw(ctx);
+        // Draws players
+        players.forEach((p) => p.draw(ctx));
+    }
 }
 
 window.onload = init;
