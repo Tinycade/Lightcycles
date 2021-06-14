@@ -9,6 +9,7 @@ const Beholder = window['beholder-detection'];
 let gameState = 0;
 const players = [];
 let winner;
+let winnerDecided = false
 
 let buttons = [];
 let elem = document.getElementById("myCanvas");
@@ -25,7 +26,7 @@ function startUpdate() {
 
     // Creates the title for the game
     ctx.beginPath();
-    ctx.font = "60pt Calibri";
+    ctx.font = "bold italic 44pt Courier";
     ctx.textAlign = "center";
     ctx.fillStyle = "white";
     ctx.fillText("Lightcycles", canvas.width/2, canvas.height/3);
@@ -45,7 +46,7 @@ function drawButton(name, path, textColor, canvas, ctx, x1, y1, x2, y2) {
     ctx.strokeStyle = "#000000";
     ctx.stroke(path);
 
-    ctx.font = "30pt Calibri";
+    ctx.font = "bold 26pt Courier";
     ctx.textAlign = "center";
     ctx.fillStyle = textColor;
     ctx.fillText(name, x1+x2/2, y1+y2/2 + 10);
@@ -59,8 +60,8 @@ function drawButton(name, path, textColor, canvas, ctx, x1, y1, x2, y2) {
     }
 
     // Determines if a button was clicked
-    document.addEventListener("click",  function (e) {
-        const XY = getXY(canvas, e);
+    document.addEventListener("click",  function (event) {
+        const XY = getXY(canvas, event);
         // Determines if a button was clicked
         if(ctx.isPointInPath(path, XY.x, XY.y)) {
             // Change game states
@@ -76,11 +77,17 @@ function mainUpdate() {
 }
 
 function endUpdate() {
-    if (winner != 0) {
-        alert("Player " + winner.playerNumber + " wins!");
-        winner = 0;
+    if (!winnerDecided) {
+        if (winner.playerNumber == 0) {
+            alert("No one wins!");
+            location.reload();
+        }
+        else {
+            alert("Player " + winner.playerNumber + " wins!");
+            location.reload();
+        }
+        winnerDecided = true;
     }
-    location.reload();
 }
 
 let gameUpdates = [startUpdate, mainUpdate, endUpdate];
@@ -139,7 +146,8 @@ function update() {
             winner = p;
         }
     });
-    if (playersAlive == 1) gameState = 2;
+    if (playersAlive == 0) winner.playerNumber = 0;
+    if (playersAlive <= 1) gameState = 2;
 
     draw();
     requestAnimationFrame(update);
