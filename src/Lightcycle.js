@@ -49,6 +49,7 @@ class Lightcycle {
 
     update(dt) {
         // Exit condition
+        this.crash();
         if (this.gameOver) return;
 
         this.lerpTimer -= dt;
@@ -59,7 +60,7 @@ class Lightcycle {
         var endY = cellPadding + this.targetY * this.grid.cellSize;
 
         if (this.lerpTimer < 0) {
-            // New target
+            // New target cell
             this.lerpTimer = this.speed;
             this.changeCell();
 
@@ -87,9 +88,6 @@ class Lightcycle {
             this.drawX = startX + (startX - endX) * this.lerpTimer / this.speed;
             this.drawY = startY + (startY - endY) * this.lerpTimer / this.speed;
         }
-
-        // Checks to see if the player has crashed
-        this.crash();
     }
 
     // Determines which direction the player is moving in
@@ -136,8 +134,19 @@ class Lightcycle {
 
     // Lose conditions: Player crashes into wall or another player
     crash() {
-        if (this.targetX <= 0 || this.targetX > cellCount) this.gameOver = true;
-        if (this.targetY <= 0 || this.targetY > cellCount) this.gameOver = true;
-        if (this.grid.getCell(this.targetX, this.targetY).status != 0) this.gameOver = true;
+        if (this.targetX <= 0 || this.targetX > cellCount ||
+            this.targetY <= 0 || this.targetY > cellCount ||
+            this.grid.getCell(this.targetX, this.targetY).status != 0) {
+
+            if (!this.gameOver) {
+                // Player has just crashed
+                this.gameOver = true;
+
+                // Spawns explosion particles
+                for (let i = 0; i < 8; i++) {
+                    particles.push(new Particle(this.drawX , this.drawY, 15, this.innerColor, { x: Math.random() - 0.5, y: Math.random - 0.5}));
+                }
+            }
+        }
     }
 }

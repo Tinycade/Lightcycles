@@ -6,17 +6,33 @@
     <style>
         * { padding: 0; margin: 0 }
         #myCanvas { background: #141414; display: block; margin: 0-auto; }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
     <canvas id="myCanvas"></canvas>
     <script src="https://unpkg.com/beholder-detection@1.1.13/dist/beholder-detection.js"></script>
+
     <script src="./src/Constants.js"></script>
     <script src="./src/Grid.js"></script>
     <script src="./src/Lightcycle.js"></script>
+    <script src="./src/Particle.js"></script>
     <script src="./src/index.js"></script>
+
     <div id="beholder-root"></div>
 
+    <div id="start-screen">
+        <button type="button" id="host-button">Host Game</button>
+        <button type="button" id="client-button">Join Game</button>
+    </div>
+
+    <div id="host-screen" class="hidden">
+        <h2 id="room-code"></h2>
+        <button type="button" id="start-button">Start Game</button>
+    </div>
 </body>
 </html>
