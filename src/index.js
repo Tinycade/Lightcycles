@@ -73,7 +73,7 @@ function init() {
 
     // REMOVE LATER
     document.addEventListener("keydown", (e) => { 
-        if (gameState == 3 && players[playerNumber].connectedToServer) players[playerNumber].changeDirection(e) 
+        if (gameState == 3 && players[playerNumber].active) players[playerNumber].changeDirection(e) 
     });
     
     document.querySelector("#host-button").addEventListener('click', (e) => { 

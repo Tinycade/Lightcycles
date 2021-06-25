@@ -54,7 +54,6 @@ socket.addEventListener('message', function (event) {
         const nextPlayer = players.findIndex(p => !p.connectedToServer);
         socket.send(createPacket('CONFIRM_JOIN', roomKey, { clientID: packet.payload, playerID: nextPlayer })); 
         players[nextPlayer].connectedToServer = true;
-        playerNumber = nextPlayer + 1;
       break;
 
       // client -> host
@@ -101,6 +100,7 @@ function createPacket(type, roomKey, payload) {
 function hostGame(callBack) {
     if (!connectedServer) {
         throw "Client not connected to server yet";
+        // Hide buttons for "Host and Join" until server is connected
     }
 
     socket.send(createPacket('CREATE_ROOM', '', ''));
