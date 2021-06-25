@@ -93,7 +93,7 @@ function init() {
 
     document.getElementById("join-button").addEventListener("click", () => {
         joinRoom(
-            document.getElementById('room-field').value.toUpperCase,
+            document.getElementById('room-field').value.toUpperCase(),
             (key, playerID) => {
                 document.querySelector("#join-screen").classList.add("hidden");
                 document.querySelector("#host-screen").classList.remove("hidden");
