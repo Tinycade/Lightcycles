@@ -35,7 +35,12 @@
 
     <div id="host-screen" class="hidden">
         <h2 id="room-code"></h2>
-        <button type="button" id="start-button">Start Game</button>
+        <button type="button" id="start-button" class="hidden">Start Game</button>
+    </div>
+
+    <div id="join-screen" class="hidden">
+        <input type="text" id="room-field" name="room-field" pattern="[a-zA-Z]*" maxlength="4">
+        <button type="button" id="join-button">Join Room</button>
     </div>
 </body>
 </html>

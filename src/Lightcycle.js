@@ -26,10 +26,17 @@ class Lightcycle {
         this.wall = true;
         this.recharging = false;
         this.gameOver = false;
+
+        // Defines server connection
+        this.connectedToServer = false;
+        this.active = false;
     }
 
     // Draws the player
     draw(ctx) {
+        // Exit condition
+        if (!this.active) return;
+
         ctx.beginPath();
         ctx.rect(this.drawX, this.drawY, this.grid.cellSize, this.grid.cellSize);
         if (!this.gameOver) {
@@ -50,7 +57,7 @@ class Lightcycle {
     update(dt) {
         // Exit condition
         this.crash();
-        if (this.gameOver) return;
+        if (this.gameOver || !this.active) return;
 
         this.lerpTimer -= dt;
 

@@ -3,10 +3,10 @@ let canvas, ctx;
 let grid;
 
 // Defines Beholder detection
-const Beholder = window['beholder-detection'];
+//const Beholder = window['beholder-detection'];
 
 // Defines the game state and players
-let gameState = 2;
+let gameState = 0;
 const players = [];
 let winner;
 let winnerDecided = false
@@ -25,6 +25,10 @@ function startUpdate() {
 }
 
 function roomUpdate() {
+
+}
+
+function joinUpdate() {
 
 }
 
@@ -48,7 +52,7 @@ function endUpdate() {
     }
 }
 
-let gameUpdates = [startUpdate, roomUpdate, mainUpdate, endUpdate];
+let gameUpdates = [startUpdate, roomUpdate, joinUpdate, mainUpdate, endUpdate];
 
 function init() {
     canvas = document.getElementById("myCanvas");
@@ -56,7 +60,7 @@ function init() {
     canvas.height = 480;
     ctx = canvas.getContext("2d");
 
-    Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
+    //Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
 
     // Initializes the grid
     grid = new Grid();
@@ -67,17 +71,42 @@ function init() {
     players.push(new Lightcycle(1, cellCount/2, "right", 3, grid));
     players.push(new Lightcycle(cellCount - 2, cellCount/2, "left", 4, grid));
 
+    // REMOVE LATER
+    document.addEventListener("keydown", (e) => { 
+        if (gameState == 3 && players[playerNumber].connectedToServer) players[playerNumber].changeDirection(e) 
+    });
+    
     document.querySelector("#host-button").addEventListener('click', (e) => { 
         hostGame(key => {
             document.querySelector("#start-screen").classList.add("hidden");
             document.querySelector("#host-screen").classList.remove("hidden");
+            document.querySelector("#start-button").classList.remove("hidden");
             document.querySelector("#room-code").innerHTML = key;
         })
      })
+    
+    document.getElementById("client-button").addEventListener("click", () => {
+        document.querySelector("#start-screen").classList.add("hidden");
+        document.querySelector("#join-screen").classList.remove("hidden");
+        gameState = 2;
+    });
 
-    // Listens for player updates
-    // REMOVE LATER
-    for (let i = 0; i < players.length; i++) document.addEventListener("keydown", (e) => { players[i].changeDirection(e) });
+    document.getElementById("join-button").addEventListener("click", () => {
+        joinRoom(
+            document.getElementById('room-field').value,
+            (key, playerID) => {
+                document.querySelector("#join-screen").classList.add("hidden");
+                document.querySelector("#host-screen").classList.remove("hidden");
+                document.querySelector("#room-code").innerHTML = key;
+                gameState = 1;
+                console.log(playerID);
+                playerNumber = playerID;
+                players[playerNumber].connectedToServer = true;
+            }
+        )
+    });
+
+    document.getElementById("start-button").addEventListener("click", startGame);
 
     requestAnimationFrame(update);
 }
@@ -93,16 +122,19 @@ function update() {
     dt = currentTime - prevTime;
     prevTime = currentTime;
 
+    /*
     // Beholder detection
     Beholder.update();
     var demoMarker = Beholder.getMarker(0);
 
+    
     if (demoMarker.present) {
         var demoCenter = demoMarker.center;
         var demoRotation = demoMarker.rotation;
     
         console.log(demoCenter.x, demoCenter.y, demoRotation);
     }
+    */
 
     // Checks to see if all players except for one have crashed
     let playersAlive = 0;
@@ -127,7 +159,7 @@ function draw() {
     // Checks the state of the game
     gameUpdates[gameState](dt);
 
-    if (gameState > 1) {
+    if (gameState > 2) {
         grid.draw(ctx);
         // Draws players
         players.forEach((p) => p.draw(ctx));

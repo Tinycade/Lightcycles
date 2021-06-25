@@ -1,12 +1,14 @@
 // Create WebSocket connection.
 //const socket = new WebSocket('ws://localhost:3000');
-const socket = new WebSocket('ws://192.168.0.6:8080');
+const socket = new WebSocket('ws://192.168.0.6:3000');
 
 let socketID = '';
 let connectedServer = false;
 let roomKey = '';
 let isHost = false;
 let hostCallBack;
+let joinCallback;
+let playerNumber;
 
 // Connection opened
 socket.addEventListener('open', function (event) {
@@ -32,8 +34,12 @@ socket.addEventListener('message', function (event) {
         roomKey = packet.roomKey;
         isHost = true;
         hostCallBack(roomKey);
-        gameState = 1;
+
         // Change to waiting room
+        gameState = 1;
+        players[0].connectedToServer = true;
+        playerNumber = 0;
+        isHost = true;
       break;
 
       case 'ASSIGN_SOCKET_ID':
@@ -45,6 +51,10 @@ socket.addEventListener('message', function (event) {
         // HOST
         // assign player ID and forward on "CONFIRM_JOIN"
         // update player array
+        const nextPlayer = players.findIndex(p => !p.connectedToServer);
+        socket.send(createPacket('CONFIRM_JOIN', roomKey, { clientID: packet.payload, playerID: nextPlayer })); 
+        players[nextPlayer].connectedToServer = true;
+        playerNumber = nextPlayer + 1;
       break;
 
       // client -> host
@@ -63,6 +73,7 @@ socket.addEventListener('message', function (event) {
       case 'CONFIRM_JOIN':
         // CLIENT
         // RECIEVE PLAYER ID
+        joinCallback(packet.roomKey, packet.payload.playerID);
         // MOVE TO HOSTED SCREEN
         // START RECIEVING HOST UPDATES
       break;
@@ -71,11 +82,10 @@ socket.addEventListener('message', function (event) {
       case 'UPDATE_CLIENT':
         // CLIENT
         // PARSE UPDATE FROM HOST
-
-        
       break;
 
       default:
+        console.log(packet);
       break;
     }
 });
@@ -96,4 +106,25 @@ function hostGame(callBack) {
     socket.send(createPacket('CREATE_ROOM', '', ''));
 
     hostCallBack = callBack;
+}
+
+function joinRoom(roomKey, callBack) {
+    socket.send(createPacket('REQUEST_TO_JOIN', roomKey, ''));
+    joinCallback = callBack;
+}
+
+function startGame() {
+    // Removes any players that haven't joined
+    players.forEach((player, index) => {
+      if (player.connectedToServer) player.active = true;
+    });
+    gameState = 3;
+}
+
+function sendHostUpdate() {
+    
+}
+
+function sendClientUpdate() {
+    
 }
