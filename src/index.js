@@ -32,6 +32,29 @@ function joinUpdate() {
 
 }
 
+let updateTimer = 100;
+function sendFixedUpdate() {
+    updateTimer -= dt;
+
+    if (updateTimer < 0) {
+        updateTimer = 100;
+
+        if (isHost) {
+            // send host update
+        } else {
+            // send client update
+            const data = {
+                playerNumber: playerNumber,
+                x: 0,
+                y: 0,
+                trail: [],
+            }
+            
+            sendMessage('UPDATE_HOST', data);
+        }
+    }
+}
+
 function mainUpdate() {
     // Update players and grid
     players.forEach((p) => p.update(dt));
