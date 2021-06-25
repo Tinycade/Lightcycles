@@ -15,6 +15,24 @@ socket.addEventListener('open', function (event) {
     connectedServer = true;
 });
 
+// parses an update sent from the host
+function parseClientUpdate(packet) {
+  switch(packet.type) {
+    case 'START_GAME':
+      players.forEach((player, index) => {
+        if (player.connectedToServer) player.active = true;
+      });
+      gameState = 3;
+      break;
+
+    case 'PLAYER_JOIN':
+      players[packet.playerNumber].connectedServer = true;
+      break;
+
+    default: break;
+  }
+}
+
 // client needs to
 // send REQUEST_TO_JOIN with a room key entered and their socketID
 // send UPDATE_HOST periodically with their socketID and varius state stuff
@@ -54,6 +72,7 @@ socket.addEventListener('message', function (event) {
         const nextPlayer = players.findIndex(p => !p.connectedToServer);
         socket.send(createPacket('CONFIRM_JOIN', roomKey, { clientID: packet.payload, playerID: nextPlayer })); 
         players[nextPlayer].connectedToServer = true;
+        sendMessage('UPDATE_CLIENT', { type: 'PLAYER_JOIN', playerNumber: nextPlayer }); 
       break;
 
       // client -> host
@@ -71,7 +90,8 @@ socket.addEventListener('message', function (event) {
       // host -> client
       case 'CONFIRM_JOIN':
         // CLIENT
-        // RECIEVE PLAYER ID
+        // make sure server is active
+        players[0].connectedToServer = true;
         joinCallback(packet.roomKey, packet.payload.playerID);
         // MOVE TO HOSTED SCREEN
         // START RECIEVING HOST UPDATES
@@ -81,6 +101,7 @@ socket.addEventListener('message', function (event) {
       case 'UPDATE_CLIENT':
         // CLIENT
         // PARSE UPDATE FROM HOST
+        parseClientUpdate(packet.payload);
       break;
 
       default:
@@ -108,9 +129,14 @@ function hostGame(callBack) {
     hostCallBack = callBack;
 }
 
-function joinRoom(roomKey, callBack) {
-    socket.send(createPacket('REQUEST_TO_JOIN', roomKey, ''));
+function joinRoom(room, callBack) {
+    socket.send(createPacket('REQUEST_TO_JOIN', room, ''));
     joinCallback = callBack;
+    roomKey = room;
+}
+
+function sendMessage(type, data) {
+  socket.send(createPacket(type, roomKey, data));
 }
 
 function startGame() {
@@ -119,6 +145,10 @@ function startGame() {
       if (player.connectedToServer) player.active = true;
     });
     gameState = 3;
+
+    sendMessage('UPDATE_CLIENT', {
+      type: 'START_GAME',
+    });
 }
 
 function sendHostUpdate() {
