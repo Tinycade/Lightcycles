@@ -22,12 +22,15 @@ class Grid {
     }
 
     update(dt) {
+        // FIX: Cells get set to status of 0 permanently when their timer expires
+        /*
         this.cells.forEach((col) => {
             col.forEach((cell) => {
                 if (cell.status > 0) cell.life -= dt;
                 if (cell.life < 0) cell.status = 0;
             });
         });
+        */
     }
 
     draw(ctx) {

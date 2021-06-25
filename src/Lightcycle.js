@@ -143,9 +143,12 @@ class Lightcycle {
                 this.gameOver = true;
 
                 // Spawns explosion particles
-                for (let i = 0; i < 8; i++) {
-                    particles.push(new Particle(this.drawX , this.drawY, 15, this.innerColor, { x: Math.random() - 0.5, y: Math.random - 0.5}));
+                for (let i = 0; i < randomNumber(15,20); i++) {
+                    particles.push(new Particle(this.drawX , this.drawY, randomNumber(5,10), this.innerColor, this.direction));
                 }
+
+                // Shakes the screen
+                shake(document.querySelector("#myCanvas"));
             }
         }
     }

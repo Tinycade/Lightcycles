@@ -6,7 +6,7 @@ let grid;
 const Beholder = window['beholder-detection'];
 
 // Defines the game state and players
-let gameState = 0;
+let gameState = 2;
 const players = [];
 let winner;
 let winnerDecided = false
@@ -21,17 +21,17 @@ canvasTop = elem.offsetTop + elem.clientTop;
 let particles = [];
 
 function startUpdate() {
-    // Creates buttons as Path2D objects
-    const host = new Path2D();
-    const join = new Path2D();
+
+}
+
+function roomUpdate() {
+
 }
 
 function mainUpdate() {
     // Update players and grid
     players.forEach((p) => p.update(dt));
     grid.update(dt);
-
-    particles.forEach(particle => particle.update());
 }
 
 function endUpdate() {
@@ -48,7 +48,7 @@ function endUpdate() {
     }
 }
 
-let gameUpdates = [startUpdate, mainUpdate, endUpdate];
+let gameUpdates = [startUpdate, roomUpdate, mainUpdate, endUpdate];
 
 function init() {
     canvas = document.getElementById("myCanvas");
@@ -127,11 +127,23 @@ function draw() {
     // Checks the state of the game
     gameUpdates[gameState](dt);
 
-    if (gameState > 0) {
+    if (gameState > 1) {
         grid.draw(ctx);
         // Draws players
         players.forEach((p) => p.draw(ctx));
     }
+
+    // Creates particles and removes them after a short period
+    particles.forEach( (particle, index) => {
+        if (particle.alpha <= 0) particles.splice(index, 1);
+        else particle.update();
+    });
 }
+
+
+// Generates a random number within a specified range
+function randomNumber(min, max) { 
+    return Math.random() * (max - min) + min;
+} 
 
 window.onload = init;

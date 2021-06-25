@@ -1,5 +1,7 @@
 // Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:3000');
+//const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket('ws://192.168.0.6:8080');
+
 let socketID = '';
 let connectedServer = false;
 let roomKey = '';
@@ -30,6 +32,7 @@ socket.addEventListener('message', function (event) {
         roomKey = packet.roomKey;
         isHost = true;
         hostCallBack(roomKey);
+        gameState = 1;
         // Change to waiting room
       break;
 
@@ -48,6 +51,12 @@ socket.addEventListener('message', function (event) {
       case 'UPDATE_HOST':
         // HOST
         // UPDATE STATE FOR SPECIFIED PLAYER ID
+
+        socket.send(createPacket('UPDATE_CLIENT', roomKey, {
+            player1X: players[0].drawX,
+            player1Y: players[0].drawY,
+            cells: grid,
+        }))
       break;
 
       // host -> client
@@ -62,6 +71,8 @@ socket.addEventListener('message', function (event) {
       case 'UPDATE_CLIENT':
         // CLIENT
         // PARSE UPDATE FROM HOST
+
+        
       break;
 
       default:
