@@ -1,6 +1,6 @@
 // Create WebSocket connection.
 //const socket = new WebSocket('ws://localhost:3000');
-const socket = new WebSocket('ws://192.168.0.6:3000');
+const socket = new WebSocket('ws://192.168.0.17:3000');
 
 let socketID = '';
 let connectedServer = false;
@@ -27,6 +27,20 @@ function parseClientUpdate(packet) {
 
     case 'PLAYER_JOIN':
       players[packet.playerNumber].connectedServer = true;
+      break;
+
+    case 'SYNC_STATE':
+      players.forEach((player, index) => {
+        if (index == playerNumber) return;
+
+        let currentPlayer = packet.players[index];
+        player.x = currentPlayer.x,
+        player.y = currentPlayer.y,
+        player.targetX = currentPlayer.targetX;
+        player.targetY = currentPlayer.targetY;
+        player.direction = currentPlayer.direction;
+      });
+      grid.cells = packet.grid;
       break;
 
     default: break;
@@ -80,11 +94,20 @@ socket.addEventListener('message', function (event) {
         // HOST
         // UPDATE STATE FOR SPECIFIED PLAYER ID
 
-        socket.send(createPacket('UPDATE_CLIENT', roomKey, {
-            player1X: players[0].drawX,
-            player1Y: players[0].drawY,
-            cells: grid,
-        }))
+        let currentPlayer = players[packet.payload.playerNumber];
+        let trail = packet.payload.trail;
+
+        for (let i = 0; i < trail.length; i++) {
+            grid.setCell(currentPlayer.playerNumber, trail[i].x, trail[i].y);
+        }
+
+        currentPlayer.x = packet.payload.x;
+        currentPlayer.y = packet.payload.y;
+        currentPlayer.targetX = packet.payload.targetX;
+        currentPlayer.targetY = packet.payload.targetY;
+        currentPlayer.direction = packet.payload.direction;
+
+        //currentPlayer.lerpTimer = players[0].lerpTimer;
       break;
 
       // host -> client
@@ -145,6 +168,11 @@ function startGame() {
       if (player.connectedToServer) player.active = true;
     });
     gameState = 3;
+
+    document.querySelector("#start-button").classList.add("hidden");
+
+    // FIX LATER
+    document.querySelector("#restart-button").classList.remove("hidden");
 
     sendMessage('UPDATE_CLIENT', {
       type: 'START_GAME',

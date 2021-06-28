@@ -2,7 +2,7 @@ const cellCount = 50;
 const cellPadding = 0;
 const cellLife = 10000;
 
-const maxWallCount = 150;
+const maxWallCount = 200;
 const minRecharge = maxWallCount / 2;
 const rechargeRate = 1.5;
 

@@ -10,13 +10,13 @@ class Grid {
                 this.cells[col][row] = {
                     x: (col * this.cellSize) + cellPadding,
                     y: (row * this.cellSize) + cellPadding,
-                    status: 0,
+                    status: -1,
                     life: cellLife
                 };
 
                 // Creating boundary walls
-                if (col == 0 || col == cellCount - 1) this.cells[col][row].status = -1;
-                if (row == 0 || row == cellCount - 1) this.cells[col][row].status = -1;
+                if (col == 0 || col == cellCount - 1) this.cells[col][row].status = -2;
+                if (row == 0 || row == cellCount - 1) this.cells[col][row].status = -2;
             }
         }
     }
@@ -40,7 +40,7 @@ class Grid {
                 let cell = this.cells[col][row];
     
                 // Draws a regular cell
-                if (cell.status == 0) {
+                if (cell.status == -1) {
                     ctx.beginPath();
                     ctx.rect(cell.x, cell.y, this.cellSize, this.cellSize);
                     ctx.strokeStyle = "#0095DD";
@@ -48,10 +48,10 @@ class Grid {
                     ctx.closePath();
     
                 // Draws a wall cell
-                } else if (cell.status > 0) {
+                } else if (cell.status >= 0) {
                     ctx.beginPath();
                     ctx.rect(cell.x, cell.y, this.cellSize, this.cellSize);
-                    ctx.fillStyle = PLAYER_COLORS.INNER[cell.status - 1];
+                    ctx.fillStyle = PLAYER_COLORS.INNER[cell.status];
                     ctx.fill();
                     ctx.closePath();
                 }

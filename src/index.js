@@ -32,7 +32,7 @@ function joinUpdate() {
 
 }
 
-let updateTimer = 100;
+let updateTimer = 30;
 function sendFixedUpdate() {
     updateTimer -= dt;
 
@@ -41,13 +41,54 @@ function sendFixedUpdate() {
 
         if (isHost) {
             // send host update
+            const data = {
+                type: 'SYNC_STATE',
+                players: [
+                    {
+                        x: players[0].x,
+                        y: players[0].y,
+                        targetX: players[0].targetX,
+                        targetY: players[0].targetY,
+                        direction: players[0].direction,
+                    },
+                    {
+                        x: players[1].x,
+                        y: players[1].y,
+                        targetX: players[1].targetX,
+                        targetY: players[1].targetY,
+                        direction: players[1].direction,
+                    },
+                    {
+                        x: players[2].x,
+                        y: players[2].y,
+                        targetX: players[2].targetX,
+                        targetY: players[2].targetY,
+                        direction: players[2].direction,
+                    },
+                    {
+                        x: players[3].x,
+                        y: players[3].y,
+                        targetX: players[3].targetX,
+                        targetY: players[3].targetY,
+                        direction: players[3].direction,
+                    },
+                ],
+                grid: grid.cells,
+              };
+      
+              sendMessage('UPDATE_CLIENT', data);
         } else {
             // send client update
+            let currentPlayer = players[playerNumber];
+
             const data = {
                 playerNumber: playerNumber,
-                x: 0,
-                y: 0,
-                trail: [],
+                x: currentPlayer.x,
+                y: currentPlayer.y,
+                targetX: currentPlayer.targetX,
+                targetY: currentPlayer.targetY,
+                trail: currentPlayer.trail,
+                direction: currentPlayer.direction,
             }
             
             sendMessage('UPDATE_HOST', data);
@@ -59,6 +100,8 @@ function mainUpdate() {
     // Update players and grid
     players.forEach((p) => p.update(dt));
     grid.update(dt);
+
+    sendFixedUpdate();
 }
 
 function endUpdate() {
@@ -89,10 +132,10 @@ function init() {
     grid = new Grid();
 
     // Initializes players
-    players.push(new Lightcycle(1, 1, "right", 1, grid));
-    players.push(new Lightcycle(cellCount - 2, 1, "left", 2, grid));
-    players.push(new Lightcycle(1, cellCount/2, "right", 3, grid));
-    players.push(new Lightcycle(cellCount - 2, cellCount/2, "left", 4, grid));
+    players.push(new Lightcycle(1, 1, "right", 0, grid));
+    players.push(new Lightcycle(cellCount - 2, 1, "left", 1, grid));
+    players.push(new Lightcycle(1, cellCount/2, "right", 2, grid));
+    players.push(new Lightcycle(cellCount - 2, cellCount/2, "left", 3, grid));
 
     // REMOVE LATER
     document.addEventListener("keydown", (e) => { 

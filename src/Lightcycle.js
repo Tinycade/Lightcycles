@@ -18,8 +18,8 @@ class Lightcycle {
         this.direction = direction;
 
         // Defines player visuals
-        this.innerColor = PLAYER_COLORS.INNER[playerNumber - 1];
-        this.outerColor = PLAYER_COLORS.OUTER[playerNumber - 1];
+        this.innerColor = PLAYER_COLORS.INNER[playerNumber];
+        this.outerColor = PLAYER_COLORS.OUTER[playerNumber];
 
         // Defines player conditions
         this.wallCount = maxWallCount;
@@ -30,6 +30,9 @@ class Lightcycle {
         // Defines server connection
         this.connectedToServer = false;
         this.active = false;
+
+        // Keeps track of the wall cells the player has created
+        this.trail = [];
     }
 
     // Draws the player
@@ -56,7 +59,6 @@ class Lightcycle {
 
     update(dt) {
         // Exit condition
-        this.crash();
         if (this.gameOver || !this.active) return;
 
         this.lerpTimer -= dt;
@@ -73,9 +75,13 @@ class Lightcycle {
 
             // Creates new walls if possible
             if (this.wallCount > 0 && !this.recharging && this.wall) {
+
                 // Current cell is now a wall
                 this.grid.setCell(this.playerNumber, this.x, this.y);
                 this.wallCount--;
+
+                this.trail.push({ x: this.x, y: this.y });
+
             } else {
                 this.recharging = true;
                 if (this.wallCount < maxWallCount) this.wallCount += rechargeRate;
@@ -90,6 +96,8 @@ class Lightcycle {
             this.y = this.targetY;
             this.drawX = endX;
             this.drawY = endY;
+
+            this.crash();
         } else {
             // Movement between cells
             this.drawX = startX + (startX - endX) * this.lerpTimer / this.speed;
@@ -102,15 +110,19 @@ class Lightcycle {
         // Movement
         if ( e.key == "d" || e.key == "ArrowRight" ) {
             if (this.direction != "left") this.direction = "right";
+            if (!this.wall) this.direction = "right";
         }
         else if ( e.key == "a" || e.key == "ArrowLeft" ) {
             if (this.direction != "right") this.direction = "left";
+            if (!this.wall) this.direction = "left";
         }
         else if ( e.key == "w" || e.key == "ArrowUp" ) {
             if (this.direction != "down") this.direction = "up";
+            if (!this.wall) this.direction = "up";
         }
         else if ( e.key == "s" || e.key == "ArrowDown" ) {
             if (this.direction != "up") this.direction = "down";
+            if (!this.wall) this.direction = "down";
         }
 
         // Toggle wall
@@ -143,7 +155,7 @@ class Lightcycle {
     crash() {
         if (this.targetX <= 0 || this.targetX > cellCount ||
             this.targetY <= 0 || this.targetY > cellCount ||
-            this.grid.getCell(this.targetX, this.targetY).status != 0) {
+            this.grid.getCell(this.targetX, this.targetY).status != -1) {
 
             if (!this.gameOver) {
                 // Player has just crashed
@@ -151,7 +163,7 @@ class Lightcycle {
 
                 // Spawns explosion particles
                 for (let i = 0; i < randomNumber(15,20); i++) {
-                    particles.push(new Particle(this.drawX , this.drawY, randomNumber(5,10), this.innerColor, this.direction));
+                    particles.push(new Particle(this.drawX , this.drawY, randomNumber(5,10), this.innerColor, this.outerColor, this.direction));
                 }
 
                 // Shakes the screen

@@ -1,9 +1,10 @@
 class Particle {
-    constructor(x, y, radius, color, direction) {
+    constructor(x, y, radius, fillColor, strokeColor, direction) {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.color = color;
+        this.fillColor = fillColor;
+        this.strokeColor = strokeColor;
         this.direction = direction;
         this.velocity = { x:0, y:0 };
         this.alpha = 1;
@@ -12,11 +13,13 @@ class Particle {
 
     draw() {
         ctx.save();
-        ctx.globalAlpha = this.alpha;
+        ctx.globalAlpha = this. alpha;
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.radius, this.radius);
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = this.fillColor;
         ctx.fill();
+        ctx.strokeStyle = this.strokeColor;
+        ctx.stroke();
         ctx.restore();
     }
 
