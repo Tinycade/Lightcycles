@@ -3,7 +3,7 @@ let canvas, ctx;
 let grid;
 
 // Defines Beholder detection
-//const Beholder = window['beholder-detection'];
+const Beholder = window['beholder-detection'];
 
 // Defines the game state and players
 let gameState = 0;
@@ -120,13 +120,14 @@ function endUpdate() {
 
 let gameUpdates = [startUpdate, roomUpdate, joinUpdate, mainUpdate, endUpdate];
 
+
 function init() {
     canvas = document.getElementById("myCanvas");
     canvas.width = 480;
     canvas.height = 480;
     ctx = canvas.getContext("2d");
 
-    //Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
+    Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
 
     // Initializes the grid
     grid = new Grid();
@@ -188,19 +189,25 @@ function update() {
     dt = currentTime - prevTime;
     prevTime = currentTime;
 
-    /*
     // Beholder detection
     Beholder.update();
-    var demoMarker = Beholder.getMarker(0);
+    let wallMarker = Beholder.getMarker(0);
+    let leftMarker = Beholder.getMarker(1);
+    let rightMarker = Beholder.getMarker(2);
+    let upMarker = Beholder.getMarker(3);
+    let downMarker = Beholder.getMarker(4);
 
-    
-    if (demoMarker.present) {
-        var demoCenter = demoMarker.center;
-        var demoRotation = demoMarker.rotation;
-    
-        console.log(demoCenter.x, demoCenter.y, demoRotation);
+    // Check for player movement
+    if (leftMarker.present) players[playerNumber].changeDirection("Left");
+    if (rightMarker.present) players[playerNumber].changeDirection("Right");
+    if (upMarker.present) players[playerNumber].changeDirection("Up");
+    if (downMarker.present) players[playerNumber].changeDirection("Down");
+
+    // Check for player wall toggle
+    if (wallMarker.present) {
+        if (players[playerNumber].wall) players[playerNumber].changeDirection("Wall Off");
+        else players[playerNumber].changeDirection("Wall On");
     }
-    */
 
     // Checks to see if all players except for one have crashed
     let playersAlive = 0;

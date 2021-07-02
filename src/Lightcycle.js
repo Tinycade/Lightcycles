@@ -108,26 +108,26 @@ class Lightcycle {
     // Determines which direction the player is moving in
     changeDirection(e) {
         // Movement
-        if ( e.key == "d" || e.key == "ArrowRight" ) {
-            if (this.direction != "left") this.direction = "right";
-            if (!this.wall) this.direction = "right";
-        }
-        else if ( e.key == "a" || e.key == "ArrowLeft" ) {
+        if ( e.key == "a" || e.key == "ArrowLeft" || e == "Left" ) {
             if (this.direction != "right") this.direction = "left";
             if (!this.wall) this.direction = "left";
         }
-        else if ( e.key == "w" || e.key == "ArrowUp" ) {
+        else if ( e.key == "d" || e.key == "ArrowRight" || e == "Right" ) {
+            if (this.direction != "left") this.direction = "right";
+            if (!this.wall) this.direction = "right";
+        } 
+        else if ( e.key == "w" || e.key == "ArrowUp" || e == "Up" ) {
             if (this.direction != "down") this.direction = "up";
             if (!this.wall) this.direction = "up";
         }
-        else if ( e.key == "s" || e.key == "ArrowDown" ) {
+        else if ( e.key == "s" || e.key == "ArrowDown" || e == "Down" ) {
             if (this.direction != "up") this.direction = "down";
             if (!this.wall) this.direction = "down";
         }
 
         // Toggle wall
-        if ( e.key == "q" ) this.wall = true;
-        else if ( e.key == "e" ) this.wall = false;
+        if ( e.key == "q" || e == "Wall On" ) this.wall = true;
+        else if ( e.key == "e" || e == "Wall Off" ) this.wall = false;
     }
 
     // Determines the next cell the player will travel to
