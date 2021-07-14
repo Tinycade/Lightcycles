@@ -5,7 +5,7 @@
     <title>Lightcycles</title>
     <style>
         * { padding: 0; margin: 0 }
-        #myCanvas { background: #141414; display: block; margin: 0-auto; }
+        #myCanvas { background: #141414; display: block; margin: 0-auto; width: 400px; height: 425px;}
 
         .hidden {
             display: none;
@@ -49,6 +49,13 @@
 
     <div id="game-screen" class="hidden">
         <button type="button" id="restart-button" class="hidden">Play Again</button>
+        <progress id="wall-meter" value="100" max="100"></progress>
     </div>
+
+    <img src="img/Logo.png" alt="logo" id="logo" class="hidden">
+    <img src="img/Player1.png" alt="player1" id="player1" class="hidden">
+    <img src="img/Player2.png" alt="player2" id="player2" class="hidden">
+    <img src="img/Player3.png" alt="player3" id="player3" class="hidden">
+    <img src="img/Player4.png" alt="player4" id="player4" class="hidden">
 </body>
 </html>

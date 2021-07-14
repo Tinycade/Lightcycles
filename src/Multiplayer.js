@@ -1,6 +1,7 @@
 // Create WebSocket connection.
 //const socket = new WebSocket('ws://localhost:3000');
-const socket = new WebSocket('ws://192.168.0.17:3000');
+//const socket = new WebSocket('ws://192.168.0.17:3000');
+const socket = new WebSocket('ws://localhost:3000');
 
 let socketID = '';
 let connectedServer = false;
@@ -8,7 +9,7 @@ let roomKey = '';
 let isHost = false;
 let hostCallBack;
 let joinCallback;
-let playerNumber;
+let playerNumber = 0;
 
 // Connection opened
 socket.addEventListener('open', function (event) {
@@ -34,13 +35,25 @@ function parseClientUpdate(packet) {
         if (index == playerNumber) return;
 
         let currentPlayer = packet.players[index];
+
+        // Check for game over
+        if (!player.gameOver && currentPlayer.gameOver) player.crashAnimation();
+        player.gameOver = currentPlayer.gameOver;
+
         player.x = currentPlayer.x,
         player.y = currentPlayer.y,
         player.targetX = currentPlayer.targetX;
         player.targetY = currentPlayer.targetY;
+        
         player.direction = currentPlayer.direction;
+        player.lerpTimer = currentPlayer.lerpTimer;
       });
       grid.cells = packet.grid;
+      break;
+
+    case 'RESET_STATE':
+      grid.resetCells();
+      players.forEach(p => {p.reset()});
       break;
 
     default: break;
@@ -68,7 +81,7 @@ socket.addEventListener('message', function (event) {
         hostCallBack(roomKey);
 
         // Change to waiting room
-        gameState = 1;
+        gameState = 2;
         players[0].connectedToServer = true;
         playerNumber = 0;
         isHost = true;
@@ -101,13 +114,15 @@ socket.addEventListener('message', function (event) {
             grid.setCell(currentPlayer.playerNumber, trail[i].x, trail[i].y);
         }
 
+        // Check for game over
+        if (!currentPlayer.gameOver && packet.payload.gameOver) currentPlayer.crashAnimation();
+        currentPlayer.gameOver = packet.payload.gameOver;
+
         currentPlayer.x = packet.payload.x;
         currentPlayer.y = packet.payload.y;
         currentPlayer.targetX = packet.payload.targetX;
         currentPlayer.targetY = packet.payload.targetY;
         currentPlayer.direction = packet.payload.direction;
-
-        //currentPlayer.lerpTimer = players[0].lerpTimer;
       break;
 
       // host -> client
@@ -163,16 +178,12 @@ function sendMessage(type, data) {
 }
 
 function startGame() {
-    // Removes any players that haven't joined
-    players.forEach((player, index) => {
-      if (player.connectedToServer) player.active = true;
-    });
     gameState = 3;
 
     document.querySelector("#start-button").classList.add("hidden");
 
     // FIX LATER
-    document.querySelector("#restart-button").classList.remove("hidden");
+    document.querySelector("#game-screen").classList.remove("hidden");
 
     sendMessage('UPDATE_CLIENT', {
       type: 'START_GAME',

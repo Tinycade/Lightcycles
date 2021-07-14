@@ -22,18 +22,25 @@ class Grid {
     }
 
     update(dt) {
-        // FIX: Cells get set to status of 0 permanently when their timer expires
-        /*
-        this.cells.forEach((col) => {
-            col.forEach((cell) => {
-                if (cell.status > 0) cell.life -= dt;
-                if (cell.life < 0) cell.status = 0;
-            });
-        });
-        */
+
     }
 
     draw(ctx) {
+        // Draws outlines along the grid 
+        for (let col = 1; col < cellCount - 1; col += 4) {
+            for (let row = 1; row < cellCount - 1; row += 4) {
+                let cell = this.cells[col][row]; 
+
+                ctx.beginPath();
+                ctx.rect(cell.x, cell.y, this.cellSize * 4, this.cellSize * 4);
+                ctx.strokeStyle = "rgba(0, 149, 221, 0.15)";
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        // Draws normal grid cells
         for (let col = 0; col < cellCount; col++) {
             for (let row = 0; row < cellCount; row++) {
     
@@ -43,7 +50,8 @@ class Grid {
                 if (cell.status == -1) {
                     ctx.beginPath();
                     ctx.rect(cell.x, cell.y, this.cellSize, this.cellSize);
-                    ctx.strokeStyle = "#0095DD";
+                    ctx.strokeStyle = "rgba(0, 149, 221, 0.05)";
+                    ctx.lineWidth = 2;
                     ctx.stroke();
                     ctx.closePath();
     
@@ -54,6 +62,8 @@ class Grid {
                     ctx.fillStyle = PLAYER_COLORS.INNER[cell.status];
                     ctx.fill();
                     ctx.closePath();
+
+                    if (this.getCell(col, row).status >= 0) this.checkNearbyCells(col, row);
                 }
             }
         }
@@ -65,5 +75,41 @@ class Grid {
 
     getCell(x, y) {
         return this.cells[x][y];
+    }
+
+    checkNearbyCells(x, y) {
+        let centerCell = this.getCell(x,y);
+        let leftCell = this.getCell(x-1,y);
+        let rightCell = this.getCell(x+1,y);
+        let upCell = this.getCell(x,y+1);
+        let downCell = this.getCell(x,y-1);
+
+        let nearbyCells = [leftCell, rightCell, upCell, downCell];
+
+        nearbyCells.forEach(nearbyCell => {
+            if (nearbyCell.status == centerCell.status) {
+                this.drawRect(centerCell, nearbyCell);
+            }
+        });
+    }
+
+    drawRect(cell1, cell2) {
+        let x = cell1.x;
+        let y = cell1.y;
+
+        ctx.beginPath();
+        ctx.rect(x, y, this.cellSize, this.cellSize);
+        ctx.fillStyle = PLAYER_COLORS.INNER[cell1.status];
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    resetCells() {
+        for (let col = 0; col < cellCount; col++) {
+            for (let row = 0; row < cellCount; row++) {
+                let cell = this.cells[col][row]; 
+                if (cell.status >= 0) cell.status = -1;
+            }
+        }
     }
 }

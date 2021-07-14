@@ -8,8 +8,7 @@ const Beholder = window['beholder-detection'];
 // Defines the game state and players
 let gameState = 0;
 const players = [];
-let winner;
-let winnerDecided = false
+let winner = 0;
 
 // Creates "Host Room" and "Join Room" buttons
 let buttons = [];
@@ -19,18 +18,6 @@ canvasTop = elem.offsetTop + elem.clientTop;
 
 // Creates particles when a player crashes
 let particles = [];
-
-function startUpdate() {
-
-}
-
-function roomUpdate() {
-
-}
-
-function joinUpdate() {
-
-}
 
 let updateTimer = 30;
 function sendFixedUpdate() {
@@ -50,6 +37,8 @@ function sendFixedUpdate() {
                         targetX: players[0].targetX,
                         targetY: players[0].targetY,
                         direction: players[0].direction,
+                        lerpTimer: players[0].lerpTimer,
+                        gameOver: players[0].gameOver,
                     },
                     {
                         x: players[1].x,
@@ -57,6 +46,8 @@ function sendFixedUpdate() {
                         targetX: players[1].targetX,
                         targetY: players[1].targetY,
                         direction: players[1].direction,
+                        lerpTimer: players[1].lerpTimer,
+                        gameOver: players[1].gameOver,
                     },
                     {
                         x: players[2].x,
@@ -64,6 +55,8 @@ function sendFixedUpdate() {
                         targetX: players[2].targetX,
                         targetY: players[2].targetY,
                         direction: players[2].direction,
+                        lerpTimer: players[2].lerpTimer,
+                        gameOver: players[2].gameOver,
                     },
                     {
                         x: players[3].x,
@@ -71,6 +64,8 @@ function sendFixedUpdate() {
                         targetX: players[3].targetX,
                         targetY: players[3].targetY,
                         direction: players[3].direction,
+                        lerpTimer: players[3].lerpTimer,
+                        gameOver: players[3].gameOver,
                     },
                 ],
                 grid: grid.cells,
@@ -89,6 +84,7 @@ function sendFixedUpdate() {
                 targetY: currentPlayer.targetY,
                 trail: currentPlayer.trail,
                 direction: currentPlayer.direction,
+                gameOver: currentPlayer.gameOver,
             }
             
             sendMessage('UPDATE_HOST', data);
@@ -104,22 +100,6 @@ function mainUpdate() {
     sendFixedUpdate();
 }
 
-function endUpdate() {
-    if (!winnerDecided) {
-        if (winner.playerNumber == 0) {
-            alert("No one wins!");
-            location.reload();
-        }
-        else {
-            alert("Player " + winner.playerNumber + " wins!");
-            location.reload();
-        }
-        winnerDecided = true;
-    }
-}
-
-let gameUpdates = [startUpdate, roomUpdate, joinUpdate, mainUpdate, endUpdate];
-
 
 function init() {
     canvas = document.getElementById("myCanvas");
@@ -127,7 +107,7 @@ function init() {
     canvas.height = 480;
     ctx = canvas.getContext("2d");
 
-    Beholder.init('#beholder-root', { overlay_params: {present: true}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
+    Beholder.init('#beholder-root', { overlay_params: {present: false}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
 
     // Initializes the grid
     grid = new Grid();
@@ -140,7 +120,10 @@ function init() {
 
     // REMOVE LATER
     document.addEventListener("keydown", (e) => { 
-        if (gameState == 3 && players[playerNumber].active) players[playerNumber].changeDirection(e) 
+        if (gameState == 3 && players[playerNumber].active) {
+            players[playerNumber].changeDirection(e); 
+            players[playerNumber].changeWall(e); 
+        }
     });
     
     document.querySelector("#host-button").addEventListener('click', (e) => { 
@@ -155,7 +138,7 @@ function init() {
     document.getElementById("client-button").addEventListener("click", () => {
         document.querySelector("#start-screen").classList.add("hidden");
         document.querySelector("#join-screen").classList.remove("hidden");
-        gameState = 2;
+        gameState = 1;
     });
 
     document.getElementById("join-button").addEventListener("click", () => {
@@ -165,7 +148,7 @@ function init() {
                 document.querySelector("#join-screen").classList.add("hidden");
                 document.querySelector("#host-screen").classList.remove("hidden");
                 document.querySelector("#room-code").innerHTML = key;
-                gameState = 1;
+                gameState = 2;
 
                 playerNumber = playerID;
                 players[playerNumber].connectedToServer = true;
@@ -174,6 +157,15 @@ function init() {
     });
 
     document.getElementById("start-button").addEventListener("click", startGame);
+
+    document.getElementById("restart-button").addEventListener("click", () => {
+        // Reset players for a new round
+        sendMessage('UPDATE_CLIENT', { type: 'RESET_STATE' }); 
+        grid.resetCells();
+        players.forEach((p) => {
+            p.reset();
+        });
+    });
 
     requestAnimationFrame(update);
 }
@@ -205,20 +197,40 @@ function update() {
 
     // Check for player wall toggle
     if (wallMarker.present) {
-        if (players[playerNumber].wall) players[playerNumber].changeDirection("Wall Off");
-        else players[playerNumber].changeDirection("Wall On");
+        if (players[playerNumber].wall) players[playerNumber].changeWall("Wall On");
+        else players[playerNumber].changeWall("Wall Off");
     }
 
-    // Checks to see if all players except for one have crashed
+    // Removes any players that haven't joined
+    players.forEach((player, index) => {
+        if (player.connectedToServer) player.active = true;
+      });
+
+    // Check to see if all players have crashed except for one
     let playersAlive = 0;
-    players.forEach((p) => {
-        if (!p.gameOver) {
-            playersAlive++;
-            winner = p;
+    let playersActive = 0;
+    players.forEach((p) => { if(!p.gameOver) playersAlive++ });
+    players.forEach((p) => { if(p.active) playersActive++ });
+
+    if (playersAlive > 1) document.querySelector("#restart-button").classList.add("hidden");
+
+    if (playersActive > 1) {
+        if (playersAlive == 1) {
+            // Determine the winner
+            players.forEach((p) => {
+                if (!p.gameOver && p.active) winner = p;
+            });
+            console.log("Player " + (winner.playerNumber + 1) + " wins!");
+            if (isHost) document.querySelector("#restart-button").classList.remove("hidden");
+        } else if (playersAlive == 0) {
+            winner = players[0];
+            console.log("No one wins!");
+            if (isHost) document.querySelector("#restart-button").classList.remove("hidden");
         }
-    });
-    if (playersAlive == 0) winner.playerNumber = 0;
-    if (playersAlive <= 1) gameState = 2;
+    } else {
+        // For single-player testing purposes
+        if (isHost) document.querySelector("#restart-button").classList.remove("hidden"); 
+    }
 
     draw();
     requestAnimationFrame(update);
@@ -229,10 +241,29 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineWidth = 1;
 
-    // Checks the state of the game
-    gameUpdates[gameState](dt);
+    // Main screen or "Join Room" screen
+    if (gameState <= 1) {
+        let logo = document.getElementById("logo");
+        ctx.drawImage(logo, 0, 100, canvas.width, canvas.width/3);
+    }
+    // Lobby before the game starts
+    else if (gameState == 2) {
+        let padding = 10; 
+        let spriteSize = (canvas.width/2)-(padding*2);
 
-    if (gameState > 2) {
+        let player1 = document.getElementById("player1");
+        let player2 = document.getElementById("player2");
+        let player3 = document.getElementById("player3");
+        let player4 = document.getElementById("player4");
+
+        if (players[0].active) ctx.drawImage(player1, padding*2, padding*3, spriteSize, spriteSize);
+        if (players[1].active) ctx.drawImage(player2, canvas.width/2, padding*3, spriteSize, spriteSize);
+        if (players[2].active) ctx.drawImage(player3, padding*2, canvas.width/2 - padding, spriteSize, spriteSize);
+        if (players[3].active) ctx.drawImage(player4, canvas.width/2, canvas.width/2 - padding, spriteSize, spriteSize);
+    }
+    // In-game
+    else if (gameState > 2) {
+        mainUpdate();
         grid.draw(ctx);
         // Draws players
         players.forEach((p) => p.draw(ctx));
