@@ -1,7 +1,9 @@
 // Create WebSocket connection.
 //const socket = new WebSocket('ws://localhost:3000');
 //const socket = new WebSocket('ws://192.168.0.17:3000');
-const socket = new WebSocket('ws://localhost:3000');
+const urlParams = new URLSearchParams(window.location.search);
+const serverIP = urlParams.get('server');
+const socket = new WebSocket('ws://' + sserverIP + ':3000');
 
 let socketID = '';
 let connectedServer = false;
