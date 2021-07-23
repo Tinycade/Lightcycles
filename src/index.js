@@ -183,7 +183,8 @@ function update() {
 
     // Beholder detection
     Beholder.update();
-    let wallMarker = Beholder.getMarker(0);
+    let wallOnMarker = Beholder.getMarker(6);
+    let wallOffMarker = Beholder.getMarker(5);
     let leftMarker = Beholder.getMarker(1);
     let rightMarker = Beholder.getMarker(2);
     let upMarker = Beholder.getMarker(3);
@@ -196,9 +197,12 @@ function update() {
     if (downMarker.present) players[playerNumber].changeDirection("Down");
 
     // Check for player wall toggle
-    if (wallMarker.present) {
-        if (players[playerNumber].wall) players[playerNumber].changeWall("Wall On");
-        else players[playerNumber].changeWall("Wall Off");
+    if (!wallOnMarker.present && wallOffMarker.present && players[playerNumber].wall) {
+        players[playerNumber].changeWall("Wall Off");
+    }
+
+    if (!wallOffMarker.present && wallOnMarker.present && !players[playerNumber].wall) {
+        players[playerNumber].changeWall("Wall On");
     }
 
     // Removes any players that haven't joined
