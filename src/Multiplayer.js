@@ -3,7 +3,7 @@
 //const socket = new WebSocket('ws://192.168.0.17:3000');
 const urlParams = new URLSearchParams(window.location.search);
 const serverIP = urlParams.get('server');
-const socket = new WebSocket('wss://' + serverIP + ':3000');
+const socket = new WebSocket('ws://' + serverIP);
 
 let socketID = '';
 let connectedServer = false;
