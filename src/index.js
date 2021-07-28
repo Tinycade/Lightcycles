@@ -103,8 +103,6 @@ function mainUpdate() {
 
 function init() {
     canvas = document.getElementById("myCanvas");
-    canvas.width = 480;
-    canvas.height = 480;
     ctx = canvas.getContext("2d");
 
     Beholder.init('#beholder-root', { overlay_params: {present: false}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
