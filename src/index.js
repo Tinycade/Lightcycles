@@ -167,6 +167,10 @@ function init() {
         });
     });
 
+    // Resize canvas
+    window.addEventListener('resize', resizeGame, false);
+    window.addEventListener('orientationchange', resizeGame, false);
+
     requestAnimationFrame(update);
 }
 
@@ -183,8 +187,8 @@ function update() {
 
     // Beholder detection
     Beholder.update();
-    let wallOnMarker = Beholder.getMarker(6);
-    let wallOffMarker = Beholder.getMarker(5);
+    let wallMarker = Beholder.getMarker(5); 
+    
     let leftMarker = Beholder.getMarker(1);
     let rightMarker = Beholder.getMarker(2);
     let upMarker = Beholder.getMarker(3);
@@ -197,13 +201,13 @@ function update() {
     if (downMarker.present) players[playerNumber].changeDirection("Down");
 
     // Check for player wall toggle
-    if (!wallOnMarker.present && wallOffMarker.present && players[playerNumber].wall) {
+    if (!wallMarker.present && players[playerNumber].wall) {
         players[playerNumber].changeWall("Wall Off");
     }
 
-    if (!wallOffMarker.present && wallOnMarker.present && !players[playerNumber].wall) {
+    if (wallMarker.present && !players[playerNumber].wall) {
         players[playerNumber].changeWall("Wall On");
-    }
+    } 
 
     // Removes any players that haven't joined
     players.forEach((player, index) => {
@@ -285,5 +289,31 @@ function draw() {
 function randomNumber(min, max) { 
     return Math.random() * (max - min) + min;
 } 
+
+
+// Resizes the canvas to fit any browser window
+function resizeGame() {
+    var gameCanvas = document.getElementById('myCanvas');
+    var widthToHeight = 4 / 3;
+    var newWidth = window.innerWidth;
+    var newHeight = window.innerHeight;
+    var newWidthToHeight = newWidth / newHeight;
+    
+    if (newWidthToHeight > widthToHeight) {
+        newWidth = newHeight * widthToHeight;
+        gameCanvas.style.height = newHeight + 'px';
+        gameCanvas.style.width = newWidth + 'px';
+    } else {
+        newHeight = newWidth / widthToHeight;
+        gameCanvas.style.width = newWidth + 'px';
+        gameCanvas.style.height = newHeight + 'px';
+    }
+    
+    gameCanvas.style.marginTop = (-newHeight / 2) + 'px';
+    gameCanvas.style.marginLeft = (-newWidth / 2) + 'px';
+
+    gameCanvas.width = newWidth;
+    gameCanvas.height = newHeight;
+}
 
 window.onload = init;

@@ -5,7 +5,15 @@
     <title>Lightcycles</title>
     <style>
         * { padding: 0; margin: 0 }
-        #myCanvas { background: #141414; display: block; margin: 0-auto; width: 400px; height: 425px;}
+        body {
+            background: #141414;
+        }
+        #myCanvas {
+            background: #141414; display: block; margin: 0-auto; width: 400px; height: 425px;
+            position: absolute;
+            left: calc(50vw - 200px);
+            top: 14vh;
+        }
 
         .hidden {
             display: none;
@@ -20,6 +28,7 @@
 <body>
     <canvas id="myCanvas"></canvas>
     <script src="https://unpkg.com/beholder-detection@1.1.13/dist/beholder-detection.js"></script>
+
 
     <script src="./src/Constants.js"></script>
     <script src="./src/Grid.js"></script>

@@ -174,7 +174,7 @@ class Lightcycle {
             if (!this.gameOver) {
                 // Player has just crashed
                 this.gameOver = true;
-                this.crashAnimation();
+                 
             }
         }
     }
