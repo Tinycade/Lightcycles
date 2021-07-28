@@ -295,26 +295,26 @@ function randomNumber(min, max) {
 // Resizes the canvas to fit any browser window
 function resizeGame() {
     var gameCanvas = document.getElementById('myCanvas');
-    var widthToHeight = 4 / 3;
-    var newWidth = window.innerWidth;
-    var newHeight = window.innerHeight;
-    var newWidthToHeight = newWidth / newHeight;
+    // var widthToHeight = 4 / 3;
+    // var newWidth = window.innerWidth;
+    // var newHeight = window.innerHeight;
+    // var newWidthToHeight = newWidth / newHeight;
     
-    if (newWidthToHeight > widthToHeight) {
-        newWidth = newHeight * widthToHeight;
-        gameCanvas.style.height = newHeight + 'px';
-        gameCanvas.style.width = newWidth + 'px';
-    } else {
-        newHeight = newWidth / widthToHeight;
-        gameCanvas.style.width = newWidth + 'px';
-        gameCanvas.style.height = newHeight + 'px';
-    }
+    // if (newWidthToHeight > widthToHeight) {
+    //     newWidth = newHeight * widthToHeight;
+    //     gameCanvas.style.height = newHeight + 'px';
+    //     gameCanvas.style.width = newWidth + 'px';
+    // } else {
+    //     newHeight = newWidth / widthToHeight;
+    //     gameCanvas.style.width = newWidth + 'px';
+    //     gameCanvas.style.height = newHeight + 'px';
+    // }
     
-    gameCanvas.style.marginTop = (-newHeight / 2) + 'px';
-    gameCanvas.style.marginLeft = (-newWidth / 2) + 'px';
+    // gameCanvas.style.marginTop = (-newHeight / 2) + 'px';
+    // gameCanvas.style.marginLeft = (-newWidth / 2) + 'px';
 
-    gameCanvas.width = newWidth;
-    gameCanvas.height = newHeight;
+    // gameCanvas.width = newWidth;
+    // gameCanvas.height = newHeight;
 }
 
 window.onload = init;
