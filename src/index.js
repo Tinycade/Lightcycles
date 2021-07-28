@@ -166,8 +166,8 @@ function init() {
     });
 
     // Resize canvas
-    window.addEventListener('resize', resizeGame, false);
-    window.addEventListener('orientationchange', resizeGame, false);
+    //window.addEventListener('resize', resizeGame, false);
+    //window.addEventListener('orientationchange', resizeGame, false);
 
     requestAnimationFrame(update);
 }
