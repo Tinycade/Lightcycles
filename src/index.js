@@ -3,8 +3,8 @@ let canvas, ctx;
 let grid;
 
 function resizeCanvas() {
-    canvas.width = 480;
-    canvas.height = 480;
+    canvas.width = 450;
+    canvas.height = 450;
 }
 
 // Defines Beholder detection
