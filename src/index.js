@@ -2,6 +2,11 @@
 let canvas, ctx;
 let grid;
 
+function resizeCanvas() {
+    canvas.width = 480;
+    canvas.height = 480;
+}
+
 // Defines Beholder detection
 const Beholder = window['beholder-detection'];
 
@@ -106,6 +111,8 @@ function init() {
     ctx = canvas.getContext("2d");
 
     Beholder.init('#beholder-root', { overlay_params: {present: false}, camera_params: {rearCamera: true, torch: true, videoSize: 0}});
+
+    resizeCanvas();
 
     // Initializes the grid
     grid = new Grid();
@@ -250,7 +257,7 @@ function draw() {
     // Main screen or "Join Room" screen
     if (gameState <= 1) {
         let logo = document.getElementById("logo");
-        ctx.drawImage(logo, 0, 100, canvas.width, canvas.width/3);
+        ctx.drawImage(logo, 0, 0, 300, 120);
     }
     // Lobby before the game starts
     else if (gameState == 2) {
@@ -263,9 +270,9 @@ function draw() {
         let player4 = document.getElementById("player4");
 
         if (players[0].active) ctx.drawImage(player1, padding*2, padding*3, spriteSize, spriteSize);
-        if (players[1].active) ctx.drawImage(player2, canvas.width/2, padding*3, spriteSize, spriteSize);
-        if (players[2].active) ctx.drawImage(player3, padding*2, canvas.width/2 - padding, spriteSize, spriteSize);
-        if (players[3].active) ctx.drawImage(player4, canvas.width/2, canvas.width/2 - padding, spriteSize, spriteSize);
+        if (players[0].active) ctx.drawImage(player2, canvas.width/2, padding*3, spriteSize, spriteSize);
+        if (players[0].active) ctx.drawImage(player3, padding*2, canvas.width/2 - padding, spriteSize, spriteSize);
+        if (players[0].active) ctx.drawImage(player4, canvas.width/2, canvas.width/2 - padding, spriteSize, spriteSize);
 
         // REMOVE LATER
         if (!isHost) document.querySelector("#room-code").classList.add("hidden");
