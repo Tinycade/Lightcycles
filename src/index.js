@@ -207,12 +207,13 @@ function update() {
 
     // Check for player wall toggle
     if (!wallMarker.present && players[playerNumber].wall) {
-        // FIX LATER
+        // FIX LATER - remove if(isHost)
         if (!isHost) players[playerNumber].changeWall("Wall Off");
     }
 
     if (wallMarker.present && !players[playerNumber].wall) {
-        players[playerNumber].changeWall("Wall On");
+        // FIX LATER - remove if(isHost)
+        if (!isHost) players[playerNumber].changeWall("Wall On");
     } 
 
     // Removes any players that haven't joined
