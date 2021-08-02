@@ -74,6 +74,9 @@ class Lightcycle {
         var endX = cellPadding + this.targetX * this.grid.cellSize;
         var endY = cellPadding + this.targetY * this.grid.cellSize;
 
+        // REMOVE LATER
+        if (isHost) this.wall = true;
+
         if (this.lerpTimer < 0) {
             // New target cell
             this.lerpTimer = this.speed;
